@@ -98,7 +98,7 @@ app.get('/api/law/search', async (req, res) => {
     const params = {
       target: 'law',
       display: '100',
-      query: encodeURIComponent(query),
+      query: query,
       OC: process.env.OC,
       type: 'JSON'
     };
@@ -144,7 +144,7 @@ app.get('/api/precedent/search', async (req, res) => {
       target: 'prec',
       org: '400201',
       display: '100',
-      query: query ? encodeURIComponent(query) : undefined,
+      query: query,
       page,
       OC: process.env.OC,
       type: 'JSON'
@@ -190,7 +190,7 @@ app.get('/api/interpretation/search', async (req, res) => {
     const params = {
       target: 'expc',
       display: '100',
-      query: query ? encodeURIComponent(query) : undefined,
+      query: query,
       page,
       OC: process.env.OC,
       type: 'JSON'
