@@ -92,25 +92,34 @@ app.get('/api/law/:id', async (req, res) => {
       }
     });
     
-    // HTML 응답 확인
-    if (typeof response.data === 'string' && response.data.includes('<!DOCTYPE html')) {
-      console.error('Received HTML response:', response.data);
-      return res.status(401).json({ 
-        error: 'API Authentication failed',
-        message: 'IP-based authentication may be required',
-        details: response.data.substring(0, 200) // 처음 200자만 포함
-      });
+    console.log('Response type:', typeof response.data);
+    console.log('Response:', response.data);
+
+    // 응답이 HTML인 경우
+    if (typeof response.data === 'string') {
+      if (response.data.includes('사용자인증에 실패하였습니다') || 
+          response.data.includes('페이지 접속에 실패하였습니다')) {
+        console.error('API Authentication failed');
+        return res.status(401).json({ 
+          error: 'API Authentication failed',
+          message: 'IP-based authentication may be required',
+          serverIP: '54.254.162.138'
+        });
+      }
+      // HTML이 아닌 다른 문자열 응답
+      try {
+        const jsonData = JSON.parse(response.data);
+        return res.json(jsonData);
+      } catch (parseError) {
+        console.error('Failed to parse response as JSON:', parseError);
+        return res.status(500).json({
+          error: 'Invalid response format',
+          data: response.data.substring(0, 200)
+        });
+      }
     }
     
-    if (response.data.includes('사용자인증에 실패하였습니다') || response.data.includes('페이지 접속에 실패하였습니다')) {
-      console.error('API Authentication failed');
-      return res.status(401).json({ 
-        error: 'API Authentication failed',
-        message: 'Invalid OC key or API access denied',
-        ocKey: process.env.OC ? 'present' : 'missing'
-      });
-    }
-    
+    // JSON 응답
     res.json(response.data);
   } catch (error) {
     console.error('Error details:', {
