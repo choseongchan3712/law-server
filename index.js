@@ -310,6 +310,20 @@ app.get('/api/interpretation/:id', async (req, res) => {
   }
 });
 
+// IP 확인 엔드포인트
+app.get('/ip', async (req, res) => {
+  try {
+    const response = await axios.get('https://api.ipify.org?format=json');
+    res.json({
+      serverIP: response.data.ip,
+      clientIP: req.ip,
+      headers: req.headers
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to get IP' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
