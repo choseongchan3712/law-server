@@ -25,14 +25,14 @@ app.get('/health', (req, res) => {
 // 법률 검색 API
 app.get('/api/law/search', async (req, res) => {
   try {
-    const { query, OC: oc, type = 'JSON' } = req.query;
+    const { query } = req.query;
     const response = await axios.get('http://www.law.go.kr/DRF/lawSearch.do', {
       params: {
         target: 'law',
         display: '100',
         query: encodeURIComponent(query),
-        OC: oc,
-        type
+        OC: process.env.OC,
+        type: 'JSON'
       }
     });
     res.json(response.data);
@@ -46,13 +46,12 @@ app.get('/api/law/search', async (req, res) => {
 app.get('/api/law/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { OC: oc, type = 'JSON' } = req.query;
     const response = await axios.get('http://www.law.go.kr/DRF/lawService.do', {
       params: {
         target: 'law',
         ID: id,
-        OC: oc,
-        type
+        OC: process.env.OC,
+        type: 'JSON'
       }
     });
     res.json(response.data);
@@ -65,16 +64,16 @@ app.get('/api/law/:id', async (req, res) => {
 // 판례 검색 API
 app.get('/api/precedent/search', async (req, res) => {
   try {
-    const { query, page, OC: oc, type = 'JSON' } = req.query;
+    const { query, page } = req.query;
     const response = await axios.get('http://www.law.go.kr/DRF/lawSearch.do', {
       params: {
         target: 'prec',
         org: '400201',
         display: '100',
-        query: encodeURIComponent(query),
+        query: query ? encodeURIComponent(query) : undefined,
         page,
-        OC: oc,
-        type
+        OC: process.env.OC,
+        type: 'JSON'
       }
     });
     res.json(response.data);
@@ -88,13 +87,12 @@ app.get('/api/precedent/search', async (req, res) => {
 app.get('/api/precedent/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { OC: oc, type = 'JSON' } = req.query;
     const response = await axios.get('http://www.law.go.kr/DRF/lawService.do', {
       params: {
         target: 'prec',
         ID: id,
-        OC: oc,
-        type
+        OC: process.env.OC,
+        type: 'JSON'
       }
     });
     res.json(response.data);
@@ -107,15 +105,15 @@ app.get('/api/precedent/:id', async (req, res) => {
 // 법령해석 검색 API
 app.get('/api/interpretation/search', async (req, res) => {
   try {
-    const { query, page, OC: oc, type = 'JSON' } = req.query;
+    const { query, page } = req.query;
     const response = await axios.get('http://www.law.go.kr/DRF/lawSearch.do', {
       params: {
         target: 'expc',
         display: '100',
-        query: encodeURIComponent(query),
+        query: query ? encodeURIComponent(query) : undefined,
         page,
-        OC: oc,
-        type
+        OC: process.env.OC,
+        type: 'JSON'
       }
     });
     res.json(response.data);
@@ -129,13 +127,12 @@ app.get('/api/interpretation/search', async (req, res) => {
 app.get('/api/interpretation/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const { OC: oc, type = 'JSON' } = req.query;
     const response = await axios.get('http://www.law.go.kr/DRF/lawService.do', {
       params: {
         target: 'expc',
         ID: id,
-        OC: oc,
-        type
+        OC: process.env.OC,
+        type: 'JSON'
       }
     });
     res.json(response.data);
