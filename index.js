@@ -86,8 +86,21 @@ app.get('/api/law/:id', async (req, res) => {
     console.log('Request params:', params);
     
     const response = await axios.get('http://www.law.go.kr/DRF/lawService.do', {
-      params: params
+      params: params,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      }
     });
+    
+    // HTML 응답 확인
+    if (typeof response.data === 'string' && response.data.includes('<!DOCTYPE html')) {
+      console.error('Received HTML response:', response.data);
+      return res.status(401).json({ 
+        error: 'API Authentication failed',
+        message: 'IP-based authentication may be required',
+        details: response.data.substring(0, 200) // 처음 200자만 포함
+      });
+    }
     
     if (response.data.includes('사용자인증에 실패하였습니다') || response.data.includes('페이지 접속에 실패하였습니다')) {
       console.error('API Authentication failed');
@@ -103,12 +116,14 @@ app.get('/api/law/:id', async (req, res) => {
     console.error('Error details:', {
       message: error.message,
       response: error.response?.data,
-      OC: process.env.OC ? 'present' : 'missing'
+      OC: process.env.OC ? 'present' : 'missing',
+      headers: error.response?.headers
     });
     
     res.status(500).json({ 
       error: 'Internal server error',
       message: error.message,
+      details: error.response?.data,
       ocKey: process.env.OC ? 'present' : 'missing'
     });
   }
