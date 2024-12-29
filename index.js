@@ -157,29 +157,57 @@ app.get('/api/precedent/search', async (req, res) => {
     console.log('Request params:', params);
     
     const response = await axios.get('http://www.law.go.kr/DRF/lawSearch.do', {
-      params: params
+      params: params,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      }
     });
     
-    if (response.data.includes('사용자인증에 실패하였습니다') || response.data.includes('페이지 접속에 실패하였습니다')) {
-      console.error('API Authentication failed');
-      return res.status(401).json({ 
-        error: 'API Authentication failed',
-        message: 'Invalid OC key or API access denied',
-        ocKey: process.env.OC ? 'present' : 'missing'
-      });
+    console.log('Response type:', typeof response.data);
+    console.log('Response:', response.data);
+
+    // 응답이 문자열인 경우
+    if (typeof response.data === 'string') {
+      if (response.data.includes('사용자인증에 실패하였습니다') || 
+          response.data.includes('페이지 접속에 실패하였습니다')) {
+        console.error('API Authentication failed');
+        return res.status(401).json({ 
+          error: 'API Authentication failed',
+          message: 'IP-based authentication may be required',
+          serverIP: '54.254.162.138'
+        });
+      }
+      // 문자열을 JSON으로 파싱 시도
+      try {
+        const jsonData = JSON.parse(response.data);
+        return res.json(jsonData);
+      } catch (parseError) {
+        console.error('Failed to parse response as JSON:', parseError);
+        return res.status(500).json({
+          error: 'Invalid response format',
+          data: response.data.substring(0, 200)
+        });
+      }
     }
     
+    // JSON 응답
     res.json(response.data);
   } catch (error) {
     console.error('Error details:', {
       message: error.message,
       response: error.response?.data,
-      OC: process.env.OC ? 'present' : 'missing'
+      OC: process.env.OC ? 'present' : 'missing',
+      headers: error.response?.headers
     });
+    
+    if (error.response?.data) {
+      console.log('Full error response:', error.response.data);
+    }
     
     res.status(500).json({ 
       error: 'Internal server error',
       message: error.message,
+      details: error.response?.data,
       ocKey: process.env.OC ? 'present' : 'missing'
     });
   }
@@ -201,29 +229,57 @@ app.get('/api/precedent/:id', async (req, res) => {
     console.log('Request params:', params);
     
     const response = await axios.get('http://www.law.go.kr/DRF/lawService.do', {
-      params: params
+      params: params,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      }
     });
     
-    if (response.data.includes('사용자인증에 실패하였습니다') || response.data.includes('페이지 접속에 실패하였습니다')) {
-      console.error('API Authentication failed');
-      return res.status(401).json({ 
-        error: 'API Authentication failed',
-        message: 'Invalid OC key or API access denied',
-        ocKey: process.env.OC ? 'present' : 'missing'
-      });
+    console.log('Response type:', typeof response.data);
+    console.log('Response:', response.data);
+
+    // 응답이 문자열인 경우
+    if (typeof response.data === 'string') {
+      if (response.data.includes('사용자인증에 실패하였습니다') || 
+          response.data.includes('페이지 접속에 실패하였습니다')) {
+        console.error('API Authentication failed');
+        return res.status(401).json({ 
+          error: 'API Authentication failed',
+          message: 'IP-based authentication may be required',
+          serverIP: '54.254.162.138'
+        });
+      }
+      // 문자열을 JSON으로 파싱 시도
+      try {
+        const jsonData = JSON.parse(response.data);
+        return res.json(jsonData);
+      } catch (parseError) {
+        console.error('Failed to parse response as JSON:', parseError);
+        return res.status(500).json({
+          error: 'Invalid response format',
+          data: response.data.substring(0, 200)
+        });
+      }
     }
     
+    // JSON 응답
     res.json(response.data);
   } catch (error) {
     console.error('Error details:', {
       message: error.message,
       response: error.response?.data,
-      OC: process.env.OC ? 'present' : 'missing'
+      OC: process.env.OC ? 'present' : 'missing',
+      headers: error.response?.headers
     });
+    
+    if (error.response?.data) {
+      console.log('Full error response:', error.response.data);
+    }
     
     res.status(500).json({ 
       error: 'Internal server error',
       message: error.message,
+      details: error.response?.data,
       ocKey: process.env.OC ? 'present' : 'missing'
     });
   }
